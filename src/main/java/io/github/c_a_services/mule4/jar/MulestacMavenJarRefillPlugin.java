@@ -63,7 +63,7 @@ public class MulestacMavenJarRefillPlugin extends AbstractMojo {
 		tempLog.info("refill...");
 		tempLog.info("sourceFile=" + getSourceFile());
 		tempLog.info("destinationFile=" + getTemporaryFile());
-		tempLog.info("keepTemporaryFile=" + keepTemporaryFile);
+		tempLog.info("keepTemporaryFile=" + isKeepTemporaryFile());
 		tempLog.info("dependencyFolder=" + getBasedir());
 		try {
 			doExecute();
@@ -115,7 +115,7 @@ public class MulestacMavenJarRefillPlugin extends AbstractMojo {
 		getLog().info(tempSourceFile.getName() + " Size=" + tempSourceFile.length());
 		getLog().info(tempDestinationFile.getName() + " Size=" + tempDestinationFile.length());
 
-		if (keepTemporaryFile) {
+		if (isKeepTemporaryFile()) {
 			// overwrite the original jar as it is pushed to nexus, too.
 			FileUtils.copyFile(tempDestinationFile, tempSourceFile);
 			getLog().info("Copied " + tempDestinationFile + " to " + tempSourceFile);
@@ -159,6 +159,20 @@ public class MulestacMavenJarRefillPlugin extends AbstractMojo {
 	 */
 	public void setTemporaryFile(File aDestinationFile) {
 		temporaryFile = aDestinationFile;
+	}
+
+	/**
+	 * @see #keepTemporaryFile
+	 */
+	public boolean isKeepTemporaryFile() {
+		return keepTemporaryFile;
+	}
+
+	/**
+	 * @see #keepTemporaryFile
+	 */
+	public void setKeepTemporaryFile(boolean aKeepTemporaryFile) {
+		keepTemporaryFile = aKeepTemporaryFile;
 	}
 
 }
