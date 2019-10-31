@@ -48,6 +48,12 @@ public class ZipCompressHelper {
 	 *
 	 */
 	public void copyZip(File aSourceFile, File aDestinationFile, ZipContentReplacer aReplacer) throws IOException {
+		File tempDestinationDir = aDestinationFile.getParentFile();
+		if (!tempDestinationDir.exists()) {
+			if (!tempDestinationDir.mkdirs()) {
+				throw new IOException("Cannot create directory " + tempDestinationDir + " for file " + aDestinationFile.getAbsolutePath());
+			}
+		}
 		byte[] tempBuff = new byte[1024 * 1024];
 		try (ZipInputStream tempIn = new ZipInputStream(new FileInputStream(aSourceFile))) {
 			try (ZipOutputStream tempOut = new ZipOutputStream(new FileOutputStream(aDestinationFile))) {
