@@ -27,8 +27,8 @@
 
 	<scm>
 		<url>https://github.com/c-a-services/mule4-jar-size-reducer-maven-plugin</url>
-		<connection>scm:git:https://github.com/c-a-services/mule4-jar-size-reducer-maven-plugin.git</connection>
-		<developerConnection>scm:git:https://github.com/c-a-services/mule4-jar-size-reducer-maven-plugin.git</developerConnection>
+		<connection>scm:git:git@github.com:ca-stefan-cordes/mule4-jar-size-reducer-maven-plugin.git</connection>
+		<developerConnection>scm:git:git@github.com:ca-stefan-cordes/mule4-jar-size-reducer-maven-plugin.git</developerConnection>
 		<tag>HEAD</tag>
 	</scm>
 	<dependencies>
