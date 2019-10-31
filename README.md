@@ -2,7 +2,7 @@
 maven plugin which reduces the mule-application.jar files created by
 [mule4 applications](https://www.mulesoft.com/platform/mule)
 
-Usage:
+## Usage:
 
 Add following section to your pom:
 ```
@@ -26,7 +26,7 @@ Add following section to your pom:
 						<version>2019.10.1-SNAPSHOT</version>
 						<executions>
 							<execution>
-								<id>compress-and-copy-jar-to-zip</id>
+								<id>compress-jar</id>
 								<phase>package</phase>
 								<goals>
 									<goal>jar-compress</goal>
@@ -71,7 +71,7 @@ Add this profile to the pom.xml
 						<version>2019.10.1-SNAPSHOT</version>
 						<executions>
 							<execution>
-								<id>refill-and-copy-zip-to-jar</id>
+								<id>refill-jar</id>
 								<!-- phase is clean to hook into:
 									https://mantis.retail-sc.com/view.php?id=878065
 
@@ -94,5 +94,15 @@ to ensure the placeholders are removed before
 clean mule:deploy -P deploy-to-cloud-z-os
 ```
 is executed.
+
+## Manual usage:
+
+```
+mvn dependency:go-offline io.github.c-a-services:mule4-jar-size-reducer-maven-plugin:LATEST:jar-compress
+```
+and
+```
+mvn dependency:go-offline io.github.c-a-services:mule4-jar-size-reducer-maven-plugin:LATEST:jar-refill
+```
 
 Homepage: (https://c-a-services.github.io/mule4-jar-size-reducer-maven-plugin/)
