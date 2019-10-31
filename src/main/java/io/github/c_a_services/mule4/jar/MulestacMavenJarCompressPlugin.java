@@ -25,7 +25,7 @@ import io.github.c_a_services.mule4.jar.impl.ZipContentReplacer;
  *
  * Usage:
  *
- * mvn com.canda.mulestac4:mulestac-maven-plugin:LATEST:jar-compress
+ * mvn io.github.c-a-services:mule4-jar-size-reducer-maven-plugin:LATEST:jar-compress
  *
  */
 @Mojo(name = "jar-compress")
@@ -41,9 +41,13 @@ public class MulestacMavenJarCompressPlugin extends AbstractMojo {
 			defaultValue = "${basedir}/target/${project.artifactId}-${project.version}-mule-application.jar")
 	private File sourceFile;
 
-	@Parameter(property = "destinationFile", required = true, //
-			defaultValue = "${basedir}/target/${project.artifactId}-${project.version}-mule-application.zip")
-	private File destinationFile;
+	@Parameter(property = "temporaryFile", required = true, //
+			defaultValue = "${basedir}/target/${project.artifactId}-${project.version}-mule-application-temp.jar")
+	private File temporaryFile;
+
+	@Parameter(property = "keepTemporaryFile", required = true, //
+			defaultValue = "false")
+	private boolean keepTemporaryFile;
 
 	/**
 	 * Default of dependency:go-offline
@@ -63,7 +67,8 @@ public class MulestacMavenJarCompressPlugin extends AbstractMojo {
 		Log tempLog = getLog();
 		tempLog.info("compress...");
 		tempLog.info("sourceFile=" + getSourceFile());
-		tempLog.info("destinationFile=" + getDestinationFile());
+		tempLog.info("destinationFile=" + getTemporaryFile());
+		tempLog.info("keepTemporaryFile=" + keepTemporaryFile);
 		tempLog.info("dependencyFolder=" + getBasedir());
 		try {
 			doExecute();
@@ -91,13 +96,26 @@ public class MulestacMavenJarCompressPlugin extends AbstractMojo {
 			}
 		};
 		File tempSourceFile = getSourceFile();
-		File tempDestinationFile = getDestinationFile();
+		File tempDestinationFile = getTemporaryFile();
 		tempZipCompressHelper.copyZip(tempSourceFile, tempDestinationFile, tempReplacer);
 		getLog().info(tempSourceFile.getName() + " Size=" + tempSourceFile.length());
 		getLog().info(tempDestinationFile.getName() + " Size=" + tempDestinationFile.length());
 
-		// overwrite the original jar as it is pushed to nexus, too.
-		FileUtils.copyFile(tempDestinationFile, tempSourceFile);
+		if (keepTemporaryFile) {
+			// overwrite the original jar as it is pushed to nexus, too.
+			FileUtils.copyFile(tempDestinationFile, tempSourceFile);
+			getLog().info("Copied " + tempDestinationFile + " to " + tempSourceFile);
+		} else {
+			if (tempSourceFile.delete()) {
+				if (tempDestinationFile.renameTo(tempSourceFile)) {
+					getLog().info("Renamed " + tempDestinationFile + " to " + tempSourceFile);
+				} else {
+					throw new IOException("Could not rename " + tempDestinationFile + " to " + tempSourceFile);
+				}
+			} else {
+				throw new IOException("Could not delete " + tempSourceFile);
+			}
+		}
 	}
 
 	/**
@@ -117,15 +135,15 @@ public class MulestacMavenJarCompressPlugin extends AbstractMojo {
 	/**
 	 * @see #destinationFile
 	 */
-	public File getDestinationFile() {
-		return destinationFile;
+	public File getTemporaryFile() {
+		return temporaryFile;
 	}
 
 	/**
 	 * @see #destinationFile
 	 */
-	public void setDestinationFile(File aDestinationFile) {
-		destinationFile = aDestinationFile;
+	public void setTemporaryFile(File aDestinationFile) {
+		temporaryFile = aDestinationFile;
 	}
 
 }
