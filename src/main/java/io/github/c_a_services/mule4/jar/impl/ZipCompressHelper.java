@@ -102,7 +102,10 @@ public class ZipCompressHelper {
 	 */
 	private ZipEntry copyZipEntry(ZipEntry anEntry) {
 		ZipEntry tempOutEntry = new ZipEntry(anEntry.getName());
-		tempOutEntry.setComment(anEntry.getComment());
+		String tempComment = anEntry.getComment();
+		if (tempComment != null) {
+			tempOutEntry.setComment(tempComment);
+		}
 		FileTime tempCreationTime = anEntry.getCreationTime();
 		if (tempCreationTime != null) {
 			tempOutEntry.setCreationTime(tempCreationTime);
@@ -111,7 +114,10 @@ public class ZipCompressHelper {
 		if (tempLastAccessTime != null) {
 			tempOutEntry.setLastAccessTime(tempLastAccessTime);
 		}
-		tempOutEntry.setLastModifiedTime(anEntry.getLastModifiedTime());
+		FileTime tempLastModifiedTime = anEntry.getLastModifiedTime();
+		if (tempLastModifiedTime != null) {
+			tempOutEntry.setLastModifiedTime(tempLastModifiedTime);
+		}
 		tempOutEntry.setTime(anEntry.getTime());
 		tempOutEntry.setMethod(ZipEntry.DEFLATED);
 		return tempOutEntry;
