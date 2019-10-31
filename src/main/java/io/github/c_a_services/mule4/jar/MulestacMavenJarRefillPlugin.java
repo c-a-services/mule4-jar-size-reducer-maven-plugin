@@ -93,7 +93,8 @@ public class MulestacMavenJarRefillPlugin extends AbstractMojo {
 		ZipContentReplacer tempReplacer = new ZipContentReplacer() {
 			@Override
 			public InputStream replace(String aName, File aLocalFile, InputStream aIn) throws IOException {
-				int tempExpectedLength = ZipCompressHelper.REPLACED_BYTES.length;
+				byte[] tempReplacedBytes = ZipCompressHelper.getReplacedBytes();
+				int tempExpectedLength = tempReplacedBytes.length;
 				PushbackInputStream tempPushbackInputStream = new PushbackInputStream(aIn, tempExpectedLength);
 				byte[] tempProbe = new byte[tempExpectedLength];
 				int tempRead = tempPushbackInputStream.read(tempProbe);
@@ -101,7 +102,7 @@ public class MulestacMavenJarRefillPlugin extends AbstractMojo {
 					tempPushbackInputStream.unread(tempProbe, 0, tempRead);
 				}
 				if (tempRead == tempExpectedLength) {
-					if (Arrays.equals(tempProbe, ZipCompressHelper.REPLACED_BYTES)) {
+					if (Arrays.equals(tempProbe, tempReplacedBytes)) {
 						return new FileInputStream(aLocalFile);
 					}
 				}

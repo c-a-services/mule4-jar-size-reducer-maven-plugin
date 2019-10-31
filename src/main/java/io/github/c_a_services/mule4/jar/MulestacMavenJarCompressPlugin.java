@@ -92,7 +92,7 @@ public class MulestacMavenJarCompressPlugin extends AbstractMojo {
 			@Override
 			@SuppressWarnings("unused")
 			public InputStream replace(String aName, File aLocalFile, InputStream aIn) {
-				return new ByteArrayInputStream(ZipCompressHelper.REPLACED_BYTES);
+				return new ByteArrayInputStream(ZipCompressHelper.getReplacedBytes());
 			}
 		};
 		File tempSourceFile = getSourceFile();

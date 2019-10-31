@@ -32,7 +32,7 @@ public class ZipCompressHelper {
 	/**
 	 *
 	 */
-	public static final byte[] REPLACED_BYTES = "REPLACED".getBytes();
+	private static final byte[] REPLACED_BYTES = "REPLACED".getBytes();
 
 	private String dependencyFolder;
 
@@ -129,5 +129,12 @@ public class ZipCompressHelper {
 	 */
 	public void setDependencyFolder(String aDependencyFolder) {
 		dependencyFolder = aDependencyFolder;
+	}
+
+	/**
+	 * @see #REPLACED_BYTES
+	 */
+	public static byte[] getReplacedBytes() {
+		return REPLACED_BYTES;
 	}
 }
