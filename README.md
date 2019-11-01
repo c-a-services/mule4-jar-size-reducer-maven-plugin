@@ -19,11 +19,14 @@ Add following section to your pom:
 								</goals>
 							</execution>
 						</executions>
+						<configuration>
+							<outputFile>target/go-offline.txt</outputFile>
+						</configuration>
 					</plugin>
 					<plugin>
 						<groupId>io.github.c-a-services</groupId>
 						<artifactId>mule4-jar-size-reducer-maven-plugin</artifactId>
-						<version>2019.10.1-SNAPSHOT</version>
+						<version>2019.10.2</version>
 						<executions>
 							<execution>
 								<id>compress-jar</id>
@@ -33,6 +36,9 @@ Add following section to your pom:
 								</goals>
 							</execution>
 						</executions>
+						<configuration>
+							<goOfflineOutputFile>target/go-offline.txt</goOfflineOutputFile>
+						</configuration>
 					</plugin>
 ```
 
@@ -68,13 +74,12 @@ Add this profile to the pom.xml
 					<plugin>
 						<groupId>io.github.c-a-services</groupId>
 						<artifactId>mule4-jar-size-reducer-maven-plugin</artifactId>
-						<version>2019.10.1-SNAPSHOT</version>
+						<version>2019.10.2</version>
 						<executions>
 							<execution>
 								<id>refill-jar</id>
 								<!-- phase is clean to hook into:
 									https://mantis.retail-sc.com/view.php?id=878065
-
 									(validate requires maven >= 3.3.3)
 								 -->
 								<phase>clean</phase>
@@ -104,5 +109,15 @@ and
 ```
 mvn dependency:go-offline io.github.c-a-services:mule4-jar-size-reducer-maven-plugin:LATEST:jar-refill
 ```
+
+## Known workarounds
+
+In case go-offline fails with
+```
+Could not find artifact org.apache.maven.plugins:maven-site-plugin:jar:3.6.1
+```
+you need to add an existing version to your pluginManagement section:
+See (https://github.com/mulesoft/mule-maven-plugin/issues/336)
+
 
 Homepage: (https://c-a-services.github.io/mule4-jar-size-reducer-maven-plugin/)
