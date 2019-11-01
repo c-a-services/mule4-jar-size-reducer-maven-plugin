@@ -11,6 +11,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
+import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
 
 /**
@@ -34,7 +35,7 @@ public class ZipCompressHelper {
 	 */
 	private static final byte[] REPLACED_BYTES = "REPLACED".getBytes();
 
-	private String dependencyFolder;
+	private String mavenLocalRepositoryFolder;
 
 	/**
 	 *
@@ -45,9 +46,10 @@ public class ZipCompressHelper {
 
 	/**
 	 * @throws IOException
+	 * @throws MojoExecutionException
 	 *
 	 */
-	public void copyZip(File aSourceFile, File aDestinationFile, ZipContentReplacer aReplacer) throws IOException {
+	public void copyZip(File aSourceFile, File aDestinationFile, ZipContentReplacer aReplacer) throws IOException, MojoExecutionException {
 		File tempDestinationDir = aDestinationFile.getParentFile();
 		if (!tempDestinationDir.exists()) {
 			if (!tempDestinationDir.mkdirs()) {
@@ -68,15 +70,16 @@ public class ZipCompressHelper {
 						try {
 							InputStream tempEntryStream;
 							if (isReplaced(tempName)) {
-								File tempLocalFile = new File(getDependencyFolder() + "/" + tempName.substring(tempName.indexOf("/") + 1));
-								if (tempLocalFile.exists()) {
-									log.info("Replace content:" + tempName);
-									tempEntryStream = aReplacer.replace(tempName, tempLocalFile, tempIn);
-								} else {
-									log.info("Keep content:" + tempName + " as not existing: " + tempLocalFile.getAbsolutePath());
-									tempEntryStream = tempIn;
-								}
+								String tempWithoutRepositoryPrefix = tempName.substring(tempName.indexOf("/") + 1);
+								// files in the jar are placed in repository/ folder.
+								log.debug("Replace content: " + tempName);
+								File tempLocalFile = new File(getMavenLocalRepositoryFolder() + "/" + tempWithoutRepositoryPrefix);
+
+								// see MulestacMavenJarCompressPlugin.java
+								// see MulestacMavenJarRefillPlugin.java
+								tempEntryStream = aReplacer.replace(tempWithoutRepositoryPrefix, tempLocalFile, tempIn);
 							} else {
+								log.debug("Not matching replace pattern. Keep content: " + tempName);
 								tempEntryStream = tempIn;
 							}
 							ZipEntry tempOutEntry = copyZipEntry(tempEntry);
@@ -124,17 +127,17 @@ public class ZipCompressHelper {
 	}
 
 	/**
-	 * @see #dependencyFolder
+	 * @see #mavenLocalRepositoryFolder
 	 */
-	public String getDependencyFolder() {
-		return dependencyFolder;
+	public String getMavenLocalRepositoryFolder() {
+		return mavenLocalRepositoryFolder;
 	}
 
 	/**
-	 * @see #dependencyFolder
+	 * @see #mavenLocalRepositoryFolder
 	 */
-	public void setDependencyFolder(String aDependencyFolder) {
-		dependencyFolder = aDependencyFolder;
+	public void setMavenLocalRepositoryFolder(String aDependencyFolder) {
+		mavenLocalRepositoryFolder = aDependencyFolder;
 	}
 
 	/**

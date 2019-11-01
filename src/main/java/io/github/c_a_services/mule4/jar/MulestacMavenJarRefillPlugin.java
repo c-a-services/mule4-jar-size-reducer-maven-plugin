@@ -7,17 +7,20 @@ import java.io.InputStream;
 import java.io.PushbackInputStream;
 import java.util.Arrays;
 
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
-
 import org.apache.maven.artifact.repository.ArtifactRepository;
+import org.apache.maven.execution.MavenSession;
+import org.apache.maven.model.Plugin;
+import org.apache.maven.model.PluginManagement;
 import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.plugin.BuildPluginManager;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
+import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.FileUtils;
-import org.xml.sax.SAXException;
+import org.twdata.maven.mojoexecutor.MojoExecutor;
 
 import io.github.c_a_services.mule4.jar.impl.ZipCompressHelper;
 import io.github.c_a_services.mule4.jar.impl.ZipContentReplacer;
@@ -81,18 +84,16 @@ public class MulestacMavenJarRefillPlugin extends AbstractMojo {
 	}
 
 	/**
-	 * @throws ParserConfigurationException
-	 * @throws TransformerException
 	 * @throws IOException
-	 * @throws SAXException
+	 * @throws MojoExecutionException
 	 *
 	 */
-	private void doExecute() throws IOException {
+	private void doExecute() throws IOException, MojoExecutionException {
 		ZipCompressHelper tempZipCompressHelper = new ZipCompressHelper(getLog());
-		tempZipCompressHelper.setDependencyFolder(getBasedir());
+		tempZipCompressHelper.setMavenLocalRepositoryFolder(getBasedir());
 		ZipContentReplacer tempReplacer = new ZipContentReplacer() {
 			@Override
-			public InputStream replace(String aName, File aLocalFile, InputStream aIn) throws IOException {
+			public InputStream replace(String aNameWithoutRepositoryPrefix, File aLocalFile, InputStream aIn) throws IOException, MojoExecutionException {
 				byte[] tempReplacedBytes = ZipCompressHelper.getReplacedBytes();
 				int tempExpectedLength = tempReplacedBytes.length;
 				PushbackInputStream tempPushbackInputStream = new PushbackInputStream(aIn, tempExpectedLength);
@@ -103,10 +104,14 @@ public class MulestacMavenJarRefillPlugin extends AbstractMojo {
 				}
 				if (tempRead == tempExpectedLength) {
 					if (Arrays.equals(tempProbe, tempReplacedBytes)) {
+						if (!aLocalFile.exists()) {
+							downloadArtifact(aNameWithoutRepositoryPrefix, aLocalFile);
+						}
+						getLog().info("Refill content:" + aNameWithoutRepositoryPrefix + " with " + aLocalFile.length() + " bytes.");
 						return new FileInputStream(aLocalFile);
 					}
 				}
-				getLog().info("Keep content of " + aName);
+				getLog().info("Keep content of " + aNameWithoutRepositoryPrefix);
 				return tempPushbackInputStream;
 			}
 		};
@@ -132,6 +137,127 @@ public class MulestacMavenJarRefillPlugin extends AbstractMojo {
 			}
 		}
 
+	}
+
+	@Component
+	private MavenProject mavenProject;
+
+	@Component
+	private MavenSession mavenSession;
+
+	@Component
+	private BuildPluginManager pluginManager;
+
+	/**
+	 * @param aNameWithoutRepositoryPrefix
+	 * @throws MojoExecutionException
+	 *
+	 */
+	protected void downloadArtifact(String aNameWithoutRepositoryPrefix, File aLocalFile) throws MojoExecutionException {
+		String tempArtifact = guessGAV(aNameWithoutRepositoryPrefix);
+
+		// https://maven.apache.org/plugins/maven-dependency-plugin/get-mojo.html
+		// https://github.com/TimMoore/mojo-executor
+		try {
+			Plugin tempDependencyPlugin = MojoExecutor.plugin( //
+					MojoExecutor.groupId("org.apache.maven.plugins"), //
+					MojoExecutor.artifactId("maven-dependency-plugin"));
+			tempDependencyPlugin = getVersionOfPlugin(tempDependencyPlugin);
+			getLog().info("Manually download " + tempArtifact + " via " + tempDependencyPlugin + ":" + tempDependencyPlugin.getVersion() + " ... ");
+			MojoExecutor.executeMojo( //
+					tempDependencyPlugin, //
+					MojoExecutor.goal("get"), //
+					MojoExecutor.configuration( //
+							//	A string of the form groupId:artifactId:version[:packaging[:classifier]].
+							MojoExecutor.element(MojoExecutor.name("artifact"), tempArtifact)//
+					), //
+					MojoExecutor.executionEnvironment( //
+							mavenProject, //
+							mavenSession, //
+							pluginManager //
+					));
+		} catch (MojoExecutionException e) {
+			throw new RuntimeException("Error getting " + tempArtifact + " for " + aNameWithoutRepositoryPrefix + " to " + aLocalFile.getAbsolutePath(), e);
+		}
+		if (aLocalFile.exists()) {
+			getLog().info("Downloaded " + aLocalFile.length() + " bytes of " + aLocalFile.getName());
+		} else {
+			throw new MojoExecutionException(
+					"Cannot replace " + aNameWithoutRepositoryPrefix + " as file " + aLocalFile.getAbsolutePath() + " is missing and could not be downloaded.");
+		}
+	}
+
+	/**
+	 *
+	 */
+	private Plugin getVersionOfPlugin(Plugin aDependencyPlugin) {
+		MavenProject currentProject = mavenProject;
+		if ((aDependencyPlugin.getVersion() == null || aDependencyPlugin.getVersion().length() == 0) && currentProject != null) {
+			PluginManagement pm = currentProject.getPluginManagement();
+			if (pm != null) {
+				for (Plugin p : pm.getPlugins()) {
+					if (aDependencyPlugin.getGroupId().equals(p.getGroupId()) && aDependencyPlugin.getArtifactId().equals(p.getArtifactId())) {
+						aDependencyPlugin.setVersion(p.getVersion());
+						break;
+					}
+				}
+			}
+		}
+		return aDependencyPlugin;
+	}
+
+	/**
+	 * Pfad: org/codehaus/mojo/animal-sniffer-annotations/1.17/animal-sniffer-annotations-1.17.jar
+	 *
+	 *		A string of the form groupId:artifactId:version[:packaging[:classifier]].
+	
+		 https://maven.apache.org/plugins/maven-dependency-plugin/get-mojo.html
+	 */
+	String guessGAV(String aNameWithoutRepositoryPrefix) {
+		try {
+			return guessGAVimpl(aNameWithoutRepositoryPrefix);
+		} catch (RuntimeException e) {
+			String tempMessage = "Error getting GAV for " + aNameWithoutRepositoryPrefix;
+			getLog().error(tempMessage, e);
+			throw new RuntimeException(tempMessage, e);
+		}
+	}
+
+	/**
+	 *
+	 */
+	private String guessGAVimpl(String aNameWithoutRepositoryPrefix) {
+		int tempLast = aNameWithoutRepositoryPrefix.lastIndexOf('/');
+		String tempPath = aNameWithoutRepositoryPrefix.substring(0, tempLast);
+		String tempFileName = aNameWithoutRepositoryPrefix.substring(tempLast + 1);
+		int tempVersionPos = tempPath.lastIndexOf('/');
+		int tempArtifactFolderPos = tempPath.substring(0, tempVersionPos).lastIndexOf('/');
+
+		String tempGroupId = tempPath.substring(0, tempArtifactFolderPos).replace('/', '.');
+		String tempVersion = tempPath.substring(tempVersionPos + 1);
+
+		int tempVersionInFileNamePos = tempFileName.indexOf("-" + tempVersion);
+		if (tempVersionInFileNamePos == -1) {
+			throw new IllegalArgumentException("Did not find '-" + tempVersion + "' in " + tempFileName);
+		}
+
+		String tempArtifactId = tempFileName.substring(0, tempVersionInFileNamePos);
+		int tempFileNameDotPos = tempFileName.lastIndexOf('.');
+		String tempClassifier;
+		int tempClassifierPos = tempVersionInFileNamePos + tempVersion.length() + 2;
+		if (tempClassifierPos < tempFileNameDotPos) {
+			tempClassifier = tempFileName.substring(tempClassifierPos, tempFileNameDotPos);
+		} else {
+			tempClassifier = null;
+		}
+		String tempPackaging = tempFileName.substring(tempFileNameDotPos + 1);
+
+		String tempArtifact = tempGroupId + ':' + tempArtifactId + ':' + tempVersion + ':' + tempPackaging;
+
+		if (tempClassifier != null && tempClassifier.length() > 0) {
+			tempArtifact += ':' + tempClassifier;
+		}
+		return tempArtifact;
 	}
 
 	/**

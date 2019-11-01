@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.apache.maven.plugin.MojoExecutionException;
+
 /**
  *
  */
@@ -11,8 +13,9 @@ public interface ZipContentReplacer {
 
 	/**
 	 * @throws IOException
+	 * @throws MojoExecutionException
 	 *
 	 */
-	InputStream replace(String aName, File aLocalFile, InputStream aIn) throws IOException;
+	InputStream replace(String aNameWithoutRepositoryPrefix, File aLocalFile, InputStream aIn) throws IOException, MojoExecutionException;
 
 }

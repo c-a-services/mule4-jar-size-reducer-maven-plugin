@@ -4,46 +4,48 @@ maven plugin which reduces the mule-application.jar files created by
 
 ## Usage:
 
-Add following section to your pom:
+Add following section to your pom  (maybe with up-to-date versions):
 ```
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-dependency-plugin</artifactId>
-						<version>3.1.1</version>
-						<executions>
-							<execution>
-								<id>download-all-dependencies-for-compress</id>
-								<phase>package</phase>
-								<goals>
-									<goal>go-offline</goal>
-								</goals>
-							</execution>
-						</executions>
-						<configuration>
-							<outputFile>target/go-offline.txt</outputFile>
-						</configuration>
-					</plugin>
-					<plugin>
-						<groupId>io.github.c-a-services</groupId>
-						<artifactId>mule4-jar-size-reducer-maven-plugin</artifactId>
-						<version>2019.10.2</version>
-						<executions>
-							<execution>
-								<id>compress-jar</id>
-								<phase>package</phase>
-								<goals>
-									<goal>jar-compress</goal>
-								</goals>
-							</execution>
-						</executions>
-						<configuration>
-							<goOfflineOutputFile>target/go-offline.txt</goOfflineOutputFile>
-						</configuration>
-					</plugin>
+...
+	<build>
+...
+		<plugin>
+			<groupId>io.github.c-a-services</groupId>
+			<artifactId>mule4-jar-size-reducer-maven-plugin</artifactId>
+			<executions>
+				<execution>
+					<id>compress-jar</id>
+					<phase>package</phase>
+					<goals>
+						<goal>jar-compress</goal>
+					</goals>
+				</execution>
+			</executions>
+		</plugin>
+...
+		<pluginManagement>
+...
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-dependency-plugin</artifactId>
+					<version>3.1.1</version>
+				</plugin>
+				<plugin>
+					<groupId>io.github.c-a-services</groupId>
+					<artifactId>mule4-jar-size-reducer-maven-plugin</artifactId>
+					<version>2019.10.2-SNAPSHOT</version>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+...
 ```
 
 and then during building the repository/**/jar files will be replaced by placeholders.
-
+(you may set the plugin/execution section into a profile to not replace the jar content always).
+Another possibility is to call
+mvn package -Dcompress-jar-skip=true
 
 Add this profile to the pom.xml
 ```
@@ -55,26 +57,29 @@ Add this profile to the pom.xml
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-dependency-plugin</artifactId>
-						<version>3.1.1</version>
 						<executions>
 							<execution>
 								<id>download-all-dependencies-for-refill</id>
 								<!-- phase is clean to hook into:
 									https://mantis.retail-sc.com/view.php?id=878065
-
 									(validate requires maven >= 3.3.3)
 								 -->
 								<phase>clean</phase>
 								<goals>
-									<goal>go-offline</goal>
+									<!-- resolve as many artifacts before running jar-refill to use normal dependency resolution
+										and not internal downloadArtifact via org.twdata.maven.mojoexecutor.MojoExecutor -->
+									<goal>resolve</goal>
+									<goal>tree</goal>
 								</goals>
 							</execution>
 						</executions>
+						<configuration>
+						   	<verbose>true</verbose>
+						</configuration>
 					</plugin>
 					<plugin>
 						<groupId>io.github.c-a-services</groupId>
 						<artifactId>mule4-jar-size-reducer-maven-plugin</artifactId>
-						<version>2019.10.2</version>
 						<executions>
 							<execution>
 								<id>refill-jar</id>
@@ -96,18 +101,19 @@ Add this profile to the pom.xml
 
 to ensure the placeholders are removed before
 ```
-clean mule:deploy -P deploy-to-cloud-z-os
+mvn clean mule:deploy -P deploy-to-cloud-z-os
 ```
 is executed.
+(!) you need to execute clean and mule:deploy for above configuration.
 
 ## Manual usage:
 
 ```
-mvn dependency:go-offline io.github.c-a-services:mule4-jar-size-reducer-maven-plugin:LATEST:jar-compress
+mvn io.github.c-a-services:mule4-jar-size-reducer-maven-plugin:LATEST:jar-compress
 ```
 and
 ```
-mvn dependency:go-offline io.github.c-a-services:mule4-jar-size-reducer-maven-plugin:LATEST:jar-refill
+mvn io.github.c-a-services:mule4-jar-size-reducer-maven-plugin:LATEST:jar-refill
 ```
 
 ## Known workarounds

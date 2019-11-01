@@ -5,9 +5,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
-
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -15,7 +12,6 @@ import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.plexus.util.FileUtils;
-import org.xml.sax.SAXException;
 
 import io.github.c_a_services.mule4.jar.impl.ZipCompressHelper;
 import io.github.c_a_services.mule4.jar.impl.ZipContentReplacer;
@@ -49,6 +45,10 @@ public class MulestacMavenJarCompressPlugin extends AbstractMojo {
 			defaultValue = "false")
 	private boolean keepTemporaryFile;
 
+	@Parameter(property = "compress-jar-skip", required = false, //
+			defaultValue = "false")
+	private boolean skip;
+
 	/**
 	 * Default of dependency:go-offline
 	 */
@@ -65,34 +65,41 @@ public class MulestacMavenJarCompressPlugin extends AbstractMojo {
 	@Override
 	public void execute() throws MojoExecutionException {
 		Log tempLog = getLog();
-		tempLog.info("compress...");
 		tempLog.info("sourceFile=" + getSourceFile());
 		tempLog.info("destinationFile=" + getTemporaryFile());
 		tempLog.info("keepTemporaryFile=" + isKeepTemporaryFile());
 		tempLog.info("dependencyFolder=" + getBasedir());
-		try {
-			doExecute();
-		} catch (IOException e) {
-			throw new MojoExecutionException("Error", e);
+		if (skip) {
+			tempLog.warn("Compress is skipped.");
+		} else {
+			tempLog.info("compress...");
+			try {
+				doExecute();
+			} catch (IOException e) {
+				throw new MojoExecutionException("Error", e);
+			}
+			tempLog.info("compress finished...");
 		}
-		tempLog.info("compress finished...");
 	}
 
 	/**
-	 * @throws ParserConfigurationException
-	 * @throws TransformerException
 	 * @throws IOException
-	 * @throws SAXException
+	 * @throws MojoExecutionException
 	 *
 	 */
-	private void doExecute() throws IOException {
+	private void doExecute() throws IOException, MojoExecutionException {
 		ZipCompressHelper tempZipCompressHelper = new ZipCompressHelper(getLog());
-		tempZipCompressHelper.setDependencyFolder(getBasedir());
+		tempZipCompressHelper.setMavenLocalRepositoryFolder(getBasedir());
 		ZipContentReplacer tempReplacer = new ZipContentReplacer() {
 			@Override
-			@SuppressWarnings("unused")
 			public InputStream replace(String aName, File aLocalFile, InputStream aIn) {
-				return new ByteArrayInputStream(ZipCompressHelper.getReplacedBytes());
+				if (aLocalFile.exists()) {
+					getLog().info("Replace content:" + aName);
+					return new ByteArrayInputStream(ZipCompressHelper.getReplacedBytes());
+				}
+				// normally should be available as it was packaged a few minutes before.
+				getLog().warn("Keep content: " + aName + " as not existing: " + aLocalFile.getAbsolutePath());
+				return aIn;
 			}
 		};
 		File tempSourceFile = getSourceFile();
