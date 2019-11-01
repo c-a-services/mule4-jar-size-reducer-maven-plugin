@@ -170,6 +170,7 @@ public class MulestacMavenJarRefillPlugin extends AbstractMojo {
 					MojoExecutor.configuration( //
 							//	A string of the form groupId:artifactId:version[:packaging[:classifier]].
 							MojoExecutor.element(MojoExecutor.name("artifact"), tempArtifact)//
+							, MojoExecutor.element(MojoExecutor.name("transitive"), "false")//
 					), //
 					MojoExecutor.executionEnvironment( //
 							mavenProject, //
