@@ -22,6 +22,8 @@ public class JarCompressTestRunner {
 		tempPlugin.setSourceFile(new File(tempTargetDir + "\\firm-system-m4-2019.9.1-3-SNAPSHOT-mule-application.jar"));
 		tempPlugin.setTemporaryFile(new File(tempTargetDir + "\\firm-system-m4-2019.9.1-3-SNAPSHOT-mule-application.zip"));
 		tempPlugin.setKeepTemporaryFile(true);
+		// mvn org.apache.maven.plugins:maven-dependency-plugin:3.1.1:go-offline -DoutputFile=target\go-offline.txt
+		tempPlugin.setGoOfflineOutputFile(new File(tempTargetDir + "/go-offline.txt"));
 		tempPlugin.execute();
 	}
 }

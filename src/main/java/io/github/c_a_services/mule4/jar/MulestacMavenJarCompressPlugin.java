@@ -1,9 +1,12 @@
 package io.github.c_a_services.mule4.jar;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Set;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -45,6 +48,12 @@ public class MulestacMavenJarCompressPlugin extends AbstractMojo {
 			defaultValue = "${basedir}/target/${project.artifactId}-${project.version}-mule-application-temp.jar")
 	private File temporaryFile;
 
+	/**
+	 * e.g. ${basedir}/target/go-offline.txt
+	 */
+	@Parameter(property = "goOfflineOutputFile", required = false)
+	private File goOfflineOutputFile;
+
 	@Parameter(property = "keepTemporaryFile", required = true, //
 			defaultValue = "false")
 	private boolean keepTemporaryFile;
@@ -70,6 +79,7 @@ public class MulestacMavenJarCompressPlugin extends AbstractMojo {
 		tempLog.info("destinationFile=" + getTemporaryFile());
 		tempLog.info("keepTemporaryFile=" + isKeepTemporaryFile());
 		tempLog.info("dependencyFolder=" + getBasedir());
+		tempLog.info("goOfflineOutput=" + getGoOfflineOutputFile());
 		try {
 			doExecute();
 		} catch (IOException e) {
@@ -158,6 +168,35 @@ public class MulestacMavenJarCompressPlugin extends AbstractMojo {
 	 */
 	public void setKeepTemporaryFile(boolean aKeepTemporaryFile) {
 		keepTemporaryFile = aKeepTemporaryFile;
+	}
+
+	/**
+	 * @see #goOfflineOutputFile
+	 */
+	public File getGoOfflineOutputFile() {
+		return goOfflineOutputFile;
+	}
+
+	/**
+	 * @see #goOfflineOutputFile
+	 */
+	public void setGoOfflineOutputFile(File aGoOfflineOutput) {
+		goOfflineOutputFile = aGoOfflineOutput;
+	}
+
+	/**
+	 * com.google.guava:guava:jar:19.0
+	 * =>
+	 * 
+	 * and
+	 * 
+	 */
+	Set<String> convertGoOfflineOutputToFiles(InputStream aIn) {
+		Set<String> tempNames = new HashSet<>();
+		try (BufferedReader tempReader = new BufferedReader(new FileReader(aIn))  {
+			
+		}
+		return null;
 	}
 
 }
