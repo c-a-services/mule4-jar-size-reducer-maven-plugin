@@ -34,7 +34,7 @@ Add following section to your pom  (maybe with up-to-date versions):
 				<plugin>
 					<groupId>io.github.c-a-services</groupId>
 					<artifactId>mule4-jar-size-reducer-maven-plugin</artifactId>
-					<version>2019.10.2-SNAPSHOT</version>
+					<version>2019.10.2</version>
 				</plugin>
 			</plugins>
 		</pluginManagement>
