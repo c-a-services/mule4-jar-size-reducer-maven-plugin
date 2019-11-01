@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PushbackInputStream;
 import java.util.Arrays;
+import java.util.List;
 
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.execution.MavenSession;
@@ -192,19 +193,43 @@ public class MulestacMavenJarRefillPlugin extends AbstractMojo {
 	 *
 	 */
 	private Plugin getVersionOfPlugin(Plugin aDependencyPlugin) {
-		MavenProject currentProject = mavenProject;
-		if ((aDependencyPlugin.getVersion() == null || aDependencyPlugin.getVersion().length() == 0) && currentProject != null) {
-			PluginManagement pm = currentProject.getPluginManagement();
-			if (pm != null) {
-				for (Plugin p : pm.getPlugins()) {
-					if (aDependencyPlugin.getGroupId().equals(p.getGroupId()) && aDependencyPlugin.getArtifactId().equals(p.getArtifactId())) {
-						aDependencyPlugin.setVersion(p.getVersion());
-						break;
-					}
+		String tempVersionOfPlugin = getVersionOfPlugin(mavenProject, aDependencyPlugin);
+		if (tempVersionOfPlugin != null) {
+			getLog().debug("Found version " + tempVersionOfPlugin + " for " + aDependencyPlugin);
+			aDependencyPlugin.setVersion(tempVersionOfPlugin);
+		}
+		return aDependencyPlugin;
+	}
+
+	/**
+	 *
+	 */
+	private String getVersionOfPlugin(MavenProject aMavenProject, Plugin aDependencyPlugin) {
+		PluginManagement pm = aMavenProject.getPluginManagement();
+		if (pm != null) {
+			for (Plugin p : pm.getPlugins()) {
+				if (aDependencyPlugin.getGroupId().equals(p.getGroupId()) && aDependencyPlugin.getArtifactId().equals(p.getArtifactId())) {
+					String tempVersion = p.getVersion();
+					getLog().debug("Found " + tempVersion + " in PluginManagement " + aMavenProject);
+					return tempVersion;
 				}
 			}
 		}
-		return aDependencyPlugin;
+		List<Plugin> tempBuildPlugins = aMavenProject.getBuildPlugins();
+		if (tempBuildPlugins != null) {
+			for (Plugin p : tempBuildPlugins) {
+				if (aDependencyPlugin.getGroupId().equals(p.getGroupId()) && aDependencyPlugin.getArtifactId().equals(p.getArtifactId())) {
+					String tempVersion = p.getVersion();
+					getLog().debug("Found " + tempVersion + " in BuildPlugins " + aMavenProject);
+					return tempVersion;
+				}
+			}
+		}
+		MavenProject tempParent = aMavenProject.getParent();
+		if (tempParent != null) {
+			return getVersionOfPlugin(tempParent, aDependencyPlugin);
+		}
+		return null;
 	}
 
 	/**
