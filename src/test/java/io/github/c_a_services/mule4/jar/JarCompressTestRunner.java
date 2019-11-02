@@ -1,6 +1,7 @@
 package io.github.c_a_services.mule4.jar;
 
 import java.io.File;
+import java.util.Arrays;
 
 import org.apache.maven.plugin.MojoExecutionException;
 
@@ -22,6 +23,10 @@ public class JarCompressTestRunner {
 		tempPlugin.setSourceFile(new File(tempTargetDir + "\\firm-system-m4-2019.9.1-3-SNAPSHOT-mule-application.jar"));
 		tempPlugin.setTemporaryFile(new File(tempTargetDir + "\\firm-system-m4-2019.9.1-3-SNAPSHOT-mule-application.zip"));
 		tempPlugin.setKeepTemporaryFile(true);
+
+		// <stripMatchingFile>^repository/.*\.pom$</stripMatchingFile>
+		tempPlugin.setStripMatchingFiles(Arrays.asList("^repository/.*\\.pom$"));
+
 		tempPlugin.execute();
 	}
 }

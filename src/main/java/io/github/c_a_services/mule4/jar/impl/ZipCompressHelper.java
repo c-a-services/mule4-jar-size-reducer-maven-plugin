@@ -66,6 +66,8 @@ public class ZipCompressHelper {
 					log.debug("Entry=" + tempName);
 					if (tempEntry.isDirectory()) {
 						// skip no content
+					} else if (aReplacer.skipEntry(tempName)) {
+						log.debug("Skip entry: " + tempName);
 					} else {
 						try {
 							InputStream tempEntryStream;

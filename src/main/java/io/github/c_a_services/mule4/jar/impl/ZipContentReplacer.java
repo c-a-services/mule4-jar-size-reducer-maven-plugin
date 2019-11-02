@@ -18,4 +18,9 @@ public interface ZipContentReplacer {
 	 */
 	InputStream replace(String aNameWithoutRepositoryPrefix, File aLocalFile, InputStream aIn) throws IOException, MojoExecutionException;
 
+	/**
+	 *
+	 */
+	boolean skipEntry(String aName);
+
 }

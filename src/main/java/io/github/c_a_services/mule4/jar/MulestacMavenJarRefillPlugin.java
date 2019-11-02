@@ -115,6 +115,13 @@ public class MulestacMavenJarRefillPlugin extends AbstractMojo {
 				getLog().info("Keep content of " + aNameWithoutRepositoryPrefix);
 				return tempPushbackInputStream;
 			}
+
+			@SuppressWarnings("unused")
+			@Override
+			public boolean skipEntry(String aName) {
+				// nothing is skipped when re-fill
+				return false;
+			}
 		};
 		File tempSourceFile = getSourceFile();
 		File tempDestinationFile = getTemporaryFile();

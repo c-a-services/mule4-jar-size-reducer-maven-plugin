@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.plugin.AbstractMojo;
@@ -50,7 +51,13 @@ public class MulestacMavenJarCompressPlugin extends AbstractMojo {
 	private boolean skip;
 
 	/**
-	 * Default of dependency:go-offline
+	 * Leave out all files that match on of the specified regEx.
+	 */
+	@Parameter
+	private List<String> stripMatchingFiles;
+
+	/**
+	 * Default localRepository
 	 */
 	@Parameter(defaultValue = "${localRepository}", readonly = true, required = true)
 	private ArtifactRepository localRepository;
@@ -69,6 +76,7 @@ public class MulestacMavenJarCompressPlugin extends AbstractMojo {
 		tempLog.info("destinationFile=" + getTemporaryFile());
 		tempLog.info("keepTemporaryFile=" + isKeepTemporaryFile());
 		tempLog.info("dependencyFolder=" + getBasedir());
+		tempLog.info("stripFilesMatching=" + getStripMatchingFiles());
 		if (skip) {
 			tempLog.warn("Compress is skipped.");
 		} else {
@@ -100,6 +108,23 @@ public class MulestacMavenJarCompressPlugin extends AbstractMojo {
 				// normally should be available as it was packaged a few minutes before.
 				getLog().warn("Keep content: " + aName + " as not existing: " + aLocalFile.getAbsolutePath());
 				return aIn;
+			}
+
+			/**
+			 *
+			 */
+			@Override
+			public boolean skipEntry(String aName) {
+				List<String> tempStripMatchingFiles = getStripMatchingFiles();
+				if (tempStripMatchingFiles != null) {
+					for (String tempRegex : tempStripMatchingFiles) {
+						if (aName.matches(tempRegex)) {
+							getLog().info("Remove entry " + aName + " as matching " + tempRegex);
+							return true;
+						}
+					}
+				}
+				return false;
 			}
 		};
 		File tempSourceFile = getSourceFile();
@@ -165,6 +190,34 @@ public class MulestacMavenJarCompressPlugin extends AbstractMojo {
 	 */
 	public void setKeepTemporaryFile(boolean aKeepTemporaryFile) {
 		keepTemporaryFile = aKeepTemporaryFile;
+	}
+
+	/**
+	 * @see #stripMatchingFiles
+	 */
+	public List<String> getStripMatchingFiles() {
+		return stripMatchingFiles;
+	}
+
+	/**
+	 * @see #stripMatchingFiles
+	 */
+	public void setStripMatchingFiles(List<String> aStripFilesMatching) {
+		stripMatchingFiles = aStripFilesMatching;
+	}
+
+	/**
+	 * @see #localRepository
+	 */
+	public ArtifactRepository getLocalRepository() {
+		return localRepository;
+	}
+
+	/**
+	 * @see #localRepository
+	 */
+	public void setLocalRepository(ArtifactRepository aLocalRepository) {
+		localRepository = aLocalRepository;
 	}
 
 }
