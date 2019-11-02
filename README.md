@@ -4,7 +4,7 @@ maven plugin which reduces the mule-application.jar files created by
 
 ## Usage:
 
-Add following section to your pom  (maybe with up-to-date versions):
+Add following section to your pom.xml  (maybe with up-to-date versions):
 ```
 ...
 	<build>
@@ -39,7 +39,7 @@ Add following section to your pom  (maybe with up-to-date versions):
 				<plugin>
 					<groupId>io.github.c-a-services</groupId>
 					<artifactId>mule4-jar-size-reducer-maven-plugin</artifactId>
-					<version>2019.10.2</version>
+					<version>2019.10.3</version>
 				</plugin>
 			</plugins>
 		</pluginManagement>
