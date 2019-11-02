@@ -122,6 +122,7 @@ public class ZipCompressHelper {
 			tempOutEntry.setLastModifiedTime(tempLastModifiedTime);
 		}
 		tempOutEntry.setTime(anEntry.getTime());
+		tempOutEntry.setExtra(anEntry.getExtra());
 		tempOutEntry.setMethod(ZipEntry.DEFLATED);
 		return tempOutEntry;
 	}
