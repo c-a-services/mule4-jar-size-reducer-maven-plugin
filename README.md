@@ -21,6 +21,11 @@ Add following section to your pom  (maybe with up-to-date versions):
 					</goals>
 				</execution>
 			</executions>
+			<configuration>
+				<stripMatchingFiles>
+					<stripMatchingFile>^repository/.*\.pom$</stripMatchingFile>
+				</stripMatchingFiles>
+			</configuration>
 		</plugin>
 ...
 		<pluginManagement>
