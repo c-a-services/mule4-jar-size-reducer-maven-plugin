@@ -3,3 +3,4 @@
 /target
 /.settings/
 rebel.xml
+/release.properties
