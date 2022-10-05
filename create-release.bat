@@ -2,6 +2,9 @@ rem
 rem pre-condition: signing
 rem https://maven.apache.org/plugins/maven-gpg-plugin/usage.html 
 rem
+rem upload the ascii key to https://keyserver.ubuntu.com/
+rem gpg --export -a YOUR_KEY
+
 gpg --list-signatures
 
 echo on
