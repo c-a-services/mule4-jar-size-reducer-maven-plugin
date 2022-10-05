@@ -4,4 +4,4 @@ rem https://maven.apache.org/plugins/maven-gpg-plugin/usage.html
 rem
 gpg --list-signatures
 
-mvn deploy -P oss-publish
+mvn clean deploy -P oss-publish
