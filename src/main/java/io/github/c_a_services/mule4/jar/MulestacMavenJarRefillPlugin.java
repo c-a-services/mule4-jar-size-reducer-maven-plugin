@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PushbackInputStream;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.List;
 
@@ -65,6 +66,7 @@ public class MulestacMavenJarRefillPlugin extends AbstractMojo {
 	public void execute() throws MojoExecutionException {
 		Log tempLog = getLog();
 		tempLog.info("refill...");
+		tempLog.info("System Charset=" + Charset.defaultCharset());
 		tempLog.info("sourceFile=" + getSourceFile());
 		tempLog.info("destinationFile=" + getTemporaryFile());
 		tempLog.info("keepTemporaryFile=" + isKeepTemporaryFile());
@@ -92,10 +94,10 @@ public class MulestacMavenJarRefillPlugin extends AbstractMojo {
 	private void doExecute() throws IOException, MojoExecutionException {
 		ZipCompressHelper tempZipCompressHelper = new ZipCompressHelper(getLog());
 		tempZipCompressHelper.setMavenLocalRepositoryFolder(getBasedir());
+		byte[] tempReplacedBytes = tempZipCompressHelper.getReplacedBytes();
 		ZipContentReplacer tempReplacer = new ZipContentReplacer() {
 			@Override
 			public InputStream replace(String aNameWithoutRepositoryPrefix, File aLocalFile, InputStream aIn) throws IOException, MojoExecutionException {
-				byte[] tempReplacedBytes = ZipCompressHelper.getReplacedBytes();
 				int tempExpectedLength = tempReplacedBytes.length;
 				PushbackInputStream tempPushbackInputStream = new PushbackInputStream(aIn, tempExpectedLength);
 				byte[] tempProbe = new byte[tempExpectedLength];
@@ -110,6 +112,13 @@ public class MulestacMavenJarRefillPlugin extends AbstractMojo {
 						}
 						getLog().info("Refill content:" + aNameWithoutRepositoryPrefix + " with " + aLocalFile.length() + " bytes.");
 						return new FileInputStream(aLocalFile);
+					} else {
+						if (getLog().isDebugEnabled()) {
+							getLog().debug("Probe of " + aNameWithoutRepositoryPrefix + " does not match ReplacedBytes: ");
+							for (int i = 0; i < tempExpectedLength; i++) {
+								getLog().debug(i + ":" + tempProbe[i] + " <> " + tempReplacedBytes[i]);
+							}
+						}
 					}
 				}
 				getLog().info("Keep content of " + aNameWithoutRepositoryPrefix);

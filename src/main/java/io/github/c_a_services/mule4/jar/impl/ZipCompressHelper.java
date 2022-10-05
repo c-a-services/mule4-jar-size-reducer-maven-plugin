@@ -5,6 +5,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.nio.file.attribute.FileTime;
 import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
@@ -28,12 +30,18 @@ public class ZipCompressHelper {
 	public ZipCompressHelper(Log aLog) {
 		super();
 		log = aLog;
+		try {
+			REPLACED_BYTES = "REPLACED".getBytes("UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			log.error("UTF-8 not available, try system charset " + Charset.defaultCharset() + " for REPLACED_BYTES", e);
+			REPLACED_BYTES = "REPLACED".getBytes();
+		}
 	}
 
 	/**
 	 *
 	 */
-	private static final byte[] REPLACED_BYTES = "REPLACED".getBytes();
+	private byte[] REPLACED_BYTES;
 
 	private String mavenLocalRepositoryFolder;
 
@@ -146,7 +154,7 @@ public class ZipCompressHelper {
 	/**
 	 * @see #REPLACED_BYTES
 	 */
-	public static byte[] getReplacedBytes() {
+	public byte[] getReplacedBytes() {
 		return REPLACED_BYTES;
 	}
 }

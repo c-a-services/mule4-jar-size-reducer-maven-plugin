@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.List;
 
 import org.apache.maven.artifact.repository.ArtifactRepository;
@@ -72,6 +73,7 @@ public class MulestacMavenJarCompressPlugin extends AbstractMojo {
 	@Override
 	public void execute() throws MojoExecutionException {
 		Log tempLog = getLog();
+		tempLog.info("System Charset=" + Charset.defaultCharset());
 		tempLog.info("sourceFile=" + getSourceFile());
 		tempLog.info("destinationFile=" + getTemporaryFile());
 		tempLog.info("keepTemporaryFile=" + isKeepTemporaryFile());
@@ -98,12 +100,13 @@ public class MulestacMavenJarCompressPlugin extends AbstractMojo {
 	private void doExecute() throws IOException, MojoExecutionException {
 		ZipCompressHelper tempZipCompressHelper = new ZipCompressHelper(getLog());
 		tempZipCompressHelper.setMavenLocalRepositoryFolder(getBasedir());
+		byte[] tempReplacedBytes = tempZipCompressHelper.getReplacedBytes();
 		ZipContentReplacer tempReplacer = new ZipContentReplacer() {
 			@Override
 			public InputStream replace(String aName, File aLocalFile, InputStream aIn) {
 				if (aLocalFile.exists()) {
 					getLog().info("Replace content:" + aName);
-					return new ByteArrayInputStream(ZipCompressHelper.getReplacedBytes());
+					return new ByteArrayInputStream(tempReplacedBytes);
 				}
 				// normally should be available as it was packaged a few minutes before.
 				getLog().warn("Keep content: " + aName + " as not existing: " + aLocalFile.getAbsolutePath());
