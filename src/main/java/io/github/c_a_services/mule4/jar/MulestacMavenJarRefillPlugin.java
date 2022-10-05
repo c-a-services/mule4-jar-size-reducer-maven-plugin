@@ -74,7 +74,7 @@ public class MulestacMavenJarRefillPlugin extends AbstractMojo {
 		} catch (IOException e) {
 			throw new MojoExecutionException("Error", e);
 		}
-		tempLog.info("compress finished...");
+		tempLog.info("refill finished...");
 	}
 
 	/**
