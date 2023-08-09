@@ -50,10 +50,17 @@
 			<version>4.13.1</version>
 			<scope>test</scope>
 		</dependency>
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-core</artifactId>
+            <version>3.8.4</version>
+            <scope>provided</scope>
+        </dependency>
 	    <dependency>
+			<!-- https://github.com/mojo-executor/mojo-executor -->
 	        <groupId>org.twdata.maven</groupId>
 	        <artifactId>mojo-executor</artifactId>
-	        <version>2.3.0</version>
+	        <version>2.4.0</version>
 	    </dependency>
     	</dependencies>
 	<build>
