@@ -35,7 +35,7 @@ import io.github.c_a_services.mule4.jar.impl.ZipContentReplacer;
  * mvn dependency:copy-dependencies io.github.c-a-services:mule4-jar-size-reducer-maven-plugin:LATEST:jar-refill
  *
  */
-@Mojo(name = "jar-refill")
+@Mojo(name = "jar-refill", requiresProject = false)
 public class MulestacMavenJarRefillPlugin extends AbstractMojo {
 
 	/*

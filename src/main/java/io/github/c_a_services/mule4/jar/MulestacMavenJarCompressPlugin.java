@@ -26,7 +26,7 @@ import io.github.c_a_services.mule4.jar.impl.ZipContentReplacer;
  * mvn dependency:go-offline io.github.c-a-services:mule4-jar-size-reducer-maven-plugin:LATEST:jar-compress
  *
  */
-@Mojo(name = "jar-compress")
+@Mojo(name = "jar-compress", requiresProject = false)
 public class MulestacMavenJarCompressPlugin extends AbstractMojo {
 
 	/*

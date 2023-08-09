@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>io.github.c-a-services</groupId>
 	<artifactId>mule4-jar-size-reducer-maven-plugin</artifactId>
-	<version>2022.10.8-SNAPSHOT</version>
+	<version>2023.8.1-SNAPSHOT</version>
 	<packaging>maven-plugin</packaging>
 	<name>mule4-jar-size-reducer-maven-plugin</name>
 	<description>plugin which creates a metrics report for mule applications</description>
