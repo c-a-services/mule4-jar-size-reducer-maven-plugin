@@ -133,8 +133,8 @@ public class MulestacMavenJarCompressPlugin extends AbstractMojo {
 		File tempSourceFile = getSourceFile();
 		File tempDestinationFile = getTemporaryFile();
 		tempZipCompressHelper.copyZip(tempSourceFile, tempDestinationFile, tempReplacer);
-		getLog().info(tempSourceFile.getName() + " Size=" + tempSourceFile.length());
-		getLog().info(tempDestinationFile.getName() + " Size=" + tempDestinationFile.length());
+		getLog().info(tempSourceFile.getName() + " SourceJarSize=" + tempSourceFile.length());
+		getLog().info(tempDestinationFile.getName() + " CompressedJarSize=" + tempDestinationFile.length());
 
 		if (isKeepTemporaryFile()) {
 			// overwrite the original jar as it is pushed to nexus, too.
