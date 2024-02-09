@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>io.github.c-a-services</groupId>
 	<artifactId>mule4-jar-size-reducer-maven-plugin</artifactId>
-	<version>2024.1.1-SNAPSHOT</version>
+	<version>2024.1.1</version>
 	<packaging>maven-plugin</packaging>
 	<name>mule4-jar-size-reducer-maven-plugin</name>
 	<description>plugin which creates a metrics report for mule applications</description>
@@ -28,7 +28,8 @@
 		<url>https://github.com/c-a-services/mule4-jar-size-reducer-maven-plugin</url>
 		<connection>scm:git:git@github.com:c-a-services/mule4-jar-size-reducer-maven-plugin.git</connection>
 		<developerConnection>scm:git:git@github.com:c-a-services/mule4-jar-size-reducer-maven-plugin.git</developerConnection>
-	</scm>
+	  <tag>mule4-jar-size-reducer-maven-plugin-2024.1.1</tag>
+  </scm>
 	<dependencies>
 		<dependency>
 			<groupId>org.apache.maven</groupId>
