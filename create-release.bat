@@ -7,6 +7,8 @@ rem gpg --export -a YOUR_KEY
 
 gpg --list-signatures
 
+start gpg-agent
+
 echo on
 git pull
 if errorlevel 1 goto ende
