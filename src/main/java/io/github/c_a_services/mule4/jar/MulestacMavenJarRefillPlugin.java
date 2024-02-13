@@ -122,7 +122,7 @@ public class MulestacMavenJarRefillPlugin extends AbstractMojo {
 							File tempReCompressedJarFile = tempZipCompressHelper.reCompressJarFile(aLocalFile);
 							if (tempReCompressedJarFile != null) {
 								if (tempReCompressedJarFile.length() >= aLocalFile.length()) {
-									getLog().info("Recrompression " + aNameWithoutRepositoryPrefix + " did not create smaller file: reCompressionLargerSize="
+									getLog().info("Recompression " + aNameWithoutRepositoryPrefix + " did not create smaller file: reCompressionLargerSize="
 											+ tempReCompressedJarFile.length() + ". Take original file.");
 									tempReCompressedJarFile.delete();
 								} else {
