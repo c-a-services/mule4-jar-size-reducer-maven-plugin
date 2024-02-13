@@ -57,6 +57,13 @@ public class MulestacMavenJarRefillPlugin extends AbstractMojo {
 	private boolean keepTemporaryFile;
 
 	/**
+	 * Again compress Jar files with BEST_Compression to have smallest target size.
+	 */
+	@Parameter(property = "reCompressJarFiles", required = false, //
+			defaultValue = "false")
+	private boolean reCompressJarFiles;
+
+	/**
 	 * Default of dependency:go-offline
 	 */
 	@Parameter(defaultValue = "${localRepository}", readonly = true, required = true)
@@ -109,6 +116,21 @@ public class MulestacMavenJarRefillPlugin extends AbstractMojo {
 					if (Arrays.equals(tempProbe, tempReplacedBytes)) {
 						if (!aLocalFile.exists()) {
 							downloadArtifact(aNameWithoutRepositoryPrefix, aLocalFile);
+						}
+						if (reCompressJarFiles && (aLocalFile.getName().endsWith(".jar") || aLocalFile.getName().endsWith(".zip"))) {
+							File tempReCompressedJarFile = tempZipCompressHelper.reCompressJarFile(aLocalFile);
+							if (tempReCompressedJarFile != null) {
+								if (tempReCompressedJarFile.length() >= aLocalFile.length()) {
+									getLog().info("Recrompression did not create smaller file: reCompressionLargerSize=" + tempReCompressedJarFile.length()
+											+ ". Take original file.");
+									tempReCompressedJarFile.delete();
+								} else {
+									getLog().info("OriginalFileLength:" + aNameWithoutRepositoryPrefix + " with " + aLocalFile.length() + " bytes.");
+									getLog().info("ReCompressedJarFileLength:" + tempReCompressedJarFile.getName() + " with " + tempReCompressedJarFile.length()
+											+ " bytes.");
+									return new FileInputStream(tempReCompressedJarFile);
+								}
+							}
 						}
 						getLog().info("Refill content:" + aNameWithoutRepositoryPrefix + " with " + aLocalFile.length() + " bytes.");
 						return new FileInputStream(aLocalFile);
