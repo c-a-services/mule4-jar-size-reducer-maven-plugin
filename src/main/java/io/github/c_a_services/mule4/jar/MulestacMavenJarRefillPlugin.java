@@ -117,6 +117,7 @@ public class MulestacMavenJarRefillPlugin extends AbstractMojo {
 						if (!aLocalFile.exists()) {
 							downloadArtifact(aNameWithoutRepositoryPrefix, aLocalFile);
 						}
+						long tempLengthOfLocalFile = aLocalFile.length();
 						if (reCompressJarFiles && (aLocalFile.getName().endsWith(".jar") || aLocalFile.getName().endsWith(".zip"))) {
 							File tempReCompressedJarFile = tempZipCompressHelper.reCompressJarFile(aLocalFile);
 							if (tempReCompressedJarFile != null) {
@@ -125,14 +126,15 @@ public class MulestacMavenJarRefillPlugin extends AbstractMojo {
 											+ tempReCompressedJarFile.length() + ". Take original file.");
 									tempReCompressedJarFile.delete();
 								} else {
-									getLog().info("OriginalFileLength:" + aNameWithoutRepositoryPrefix + " with " + aLocalFile.length() + " bytes.");
-									getLog().info("ReCompressedJarFileLength:" + tempReCompressedJarFile.getName() + " with " + tempReCompressedJarFile.length()
-											+ " bytes.");
+									getLog().info("OriginalFileLength:" + aNameWithoutRepositoryPrefix + " with " + tempLengthOfLocalFile + " bytes.");
+									long tempLengthOfReCompressed = tempReCompressedJarFile.length();
+									getLog().info("ReCompressedJarFileLength:" + tempReCompressedJarFile.getName() + " with " + tempLengthOfReCompressed
+											+ " bytes saving " + (tempLengthOfLocalFile - tempLengthOfReCompressed) + " bytes.");
 									return new FileInputStream(tempReCompressedJarFile);
 								}
 							}
 						}
-						getLog().info("Refill content:" + aNameWithoutRepositoryPrefix + " with " + aLocalFile.length() + " bytes.");
+						getLog().info("Refill content:" + aNameWithoutRepositoryPrefix + " with " + tempLengthOfLocalFile + " bytes.");
 						return new FileInputStream(aLocalFile);
 					} else {
 						if (getLog().isDebugEnabled()) {
