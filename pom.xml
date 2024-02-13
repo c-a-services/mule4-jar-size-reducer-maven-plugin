@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>io.github.c-a-services</groupId>
 	<artifactId>mule4-jar-size-reducer-maven-plugin</artifactId>
@@ -7,7 +9,8 @@
 	<packaging>maven-plugin</packaging>
 	<name>mule4-jar-size-reducer-maven-plugin</name>
 	<description>plugin which creates a metrics report for mule applications</description>
-	<url>https://github.com/c-a-services/mule4-jar-size-reducer-maven-plugin/blob/master/README.md</url>
+	<url>
+		https://github.com/c-a-services/mule4-jar-size-reducer-maven-plugin/blob/master/README.md</url>
 
 	<developers>
 		<developer>
@@ -24,12 +27,18 @@
 		</license>
 	</licenses>
 
+	<properties>
+		<nexus.snapshots.url>https://nexus.canda.com/repository/Snapshots</nexus.snapshots.url>
+	</properties>
+
 	<scm>
 		<url>https://github.com/c-a-services/mule4-jar-size-reducer-maven-plugin</url>
-		<connection>scm:git:git@github.com:c-a-services/mule4-jar-size-reducer-maven-plugin.git</connection>
-		<developerConnection>scm:git:git@github.com:c-a-services/mule4-jar-size-reducer-maven-plugin.git</developerConnection>
-	  <tag>mule4-jar-size-reducer-maven-plugin-2024.1.1</tag>
-  </scm>
+		<connection>
+			scm:git:git@github.com:c-a-services/mule4-jar-size-reducer-maven-plugin.git</connection>
+		<developerConnection>
+			scm:git:git@github.com:c-a-services/mule4-jar-size-reducer-maven-plugin.git</developerConnection>
+		<tag>mule4-jar-size-reducer-maven-plugin-2024.1.1</tag>
+	</scm>
 	<dependencies>
 		<dependency>
 			<groupId>org.apache.maven</groupId>
@@ -37,7 +46,7 @@
 			<version>3.0</version>
 		</dependency>
 
-    <!-- dependencies to annotations -->
+		<!-- dependencies to annotations -->
 		<dependency>
 			<groupId>org.apache.maven.plugin-tools</groupId>
 			<artifactId>maven-plugin-annotations</artifactId>
@@ -50,19 +59,19 @@
 			<version>4.13.1</version>
 			<scope>test</scope>
 		</dependency>
-        <dependency>
-            <groupId>org.apache.maven</groupId>
-            <artifactId>maven-core</artifactId>
-            <version>3.8.4</version>
-            <scope>provided</scope>
-        </dependency>
-	    <dependency>
+		<dependency>
+			<groupId>org.apache.maven</groupId>
+			<artifactId>maven-core</artifactId>
+			<version>3.8.4</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
 			<!-- https://github.com/mojo-executor/mojo-executor -->
-	        <groupId>org.twdata.maven</groupId>
-	        <artifactId>mojo-executor</artifactId>
-	        <version>2.4.0</version>
-	    </dependency>
-    	</dependencies>
+			<groupId>org.twdata.maven</groupId>
+			<artifactId>mojo-executor</artifactId>
+			<version>2.4.0</version>
+		</dependency>
+	</dependencies>
 	<build>
 		<plugins>
 			<plugin>
@@ -109,7 +118,7 @@
 			<build>
 				<plugins>
 					<plugin>
-				<!-- http://central.sonatype.org/pages/apache-maven.html -->
+						<!-- http://central.sonatype.org/pages/apache-maven.html -->
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-gpg-plugin</artifactId>
 						<version>1.5</version>
@@ -133,8 +142,19 @@
 				</snapshotRepository>
 				<repository>
 					<id>sonatype-release</id>
-					<url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+					<url>
+						https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
 				</repository>
+			</distributionManagement>
+		</profile>
+		<profile>
+			<id>ci-snapshot</id>
+			<distributionManagement>
+				<snapshotRepository>
+					<id>nexus-site</id>
+					<url>${nexus.snapshots.url}</url>
+					<uniqueVersion>true</uniqueVersion>
+				</snapshotRepository>
 			</distributionManagement>
 		</profile>
 	</profiles>
