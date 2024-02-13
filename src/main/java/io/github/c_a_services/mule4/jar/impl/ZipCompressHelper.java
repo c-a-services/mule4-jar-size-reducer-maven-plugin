@@ -165,6 +165,7 @@ public class ZipCompressHelper {
 		try {
 			byte[] tempBuff = new byte[1024 * 1024];
 			File tempReCompressedJarFile = File.createTempFile("reCompressed-", aLocalFile.getName());
+			tempReCompressedJarFile.deleteOnExit();
 			try (ZipInputStream tempZipInputStream = new ZipInputStream(new FileInputStream(aLocalFile))) {
 				try (ZipOutputStream tempOut = new ZipOutputStream(new FileOutputStream(tempReCompressedJarFile))) {
 					tempOut.setLevel(Deflater.BEST_COMPRESSION);
