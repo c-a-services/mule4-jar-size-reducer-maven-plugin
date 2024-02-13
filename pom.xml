@@ -28,7 +28,9 @@
 	</licenses>
 
 	<properties>
+		<!-- ci snapshots to nexus and releases to maven-central -->
 		<nexus.snapshots.url>https://nexus.canda.com/repository/Snapshots</nexus.snapshots.url>
+		<additionalMavenProfileRelease>oss-publish</additionalMavenProfileRelease>
 	</properties>
 
 	<scm>
