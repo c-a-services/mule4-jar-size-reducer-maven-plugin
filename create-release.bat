@@ -16,6 +16,10 @@ call mvn clean build-helper:parse-version release:prepare release:perform -Ddeve
 if errorlevel 1 goto ende
 
 rem call mvn nexus-staging:release
+echo.
+echo.
 echo Close and Release Repository at https://oss.sonatype.org/#stagingRepositories
+echo.
+echo and create a release for the label: https://github.com/c-a-services/mule4-jar-size-reducer-maven-plugin/releases
 
 :ende
