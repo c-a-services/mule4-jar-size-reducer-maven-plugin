@@ -157,4 +157,39 @@ public class ZipCompressHelper {
 	public byte[] getReplacedBytes() {
 		return REPLACED_BYTES;
 	}
+
+	/**
+	 * 
+	 */
+	public File reCompressJarFile(File aLocalFile) {
+		try {
+			byte[] tempBuff = new byte[1024 * 1024];
+			File tempReCompressedJarFile = File.createTempFile("reCompressed-", "-" + aLocalFile.getName());
+			tempReCompressedJarFile.deleteOnExit();
+			try (ZipInputStream tempZipInputStream = new ZipInputStream(new FileInputStream(aLocalFile))) {
+				try (ZipOutputStream tempOut = new ZipOutputStream(new FileOutputStream(tempReCompressedJarFile))) {
+					tempOut.setLevel(Deflater.BEST_COMPRESSION);
+					ZipEntry tempEntry = tempZipInputStream.getNextEntry();
+					while (tempEntry != null) {
+						String tempName = tempEntry.getName();
+						log.debug("reCompressJarFile.Entry=" + tempName);
+						ZipEntry tempOutEntry = copyZipEntry(tempEntry);
+						tempOut.putNextEntry(tempOutEntry);
+						int tempRead = tempZipInputStream.read(tempBuff);
+						while (tempRead > 0) {
+							tempOut.write(tempBuff, 0, tempRead);
+							tempRead = tempZipInputStream.read(tempBuff);
+						}
+						tempOut.closeEntry();
+						tempEntry = tempZipInputStream.getNextEntry();
+					}
+				}
+			}
+			return tempReCompressedJarFile;
+		} catch (IOException | RuntimeException e) {
+			log.error("Ignore error while re-compressing " + aLocalFile, e);
+			return null;
+		}
+	}
+
 }

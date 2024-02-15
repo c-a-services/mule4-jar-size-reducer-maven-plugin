@@ -57,6 +57,13 @@ public class MulestacMavenJarRefillPlugin extends AbstractMojo {
 	private boolean keepTemporaryFile;
 
 	/**
+	 * Again compress Jar files with BEST_Compression to have smallest target size.
+	 */
+	@Parameter(property = "reCompressJarFiles", required = false, //
+			defaultValue = "false")
+	private boolean reCompressJarFiles;
+
+	/**
 	 * Default of dependency:go-offline
 	 */
 	@Parameter(defaultValue = "${localRepository}", readonly = true, required = true)
@@ -110,7 +117,24 @@ public class MulestacMavenJarRefillPlugin extends AbstractMojo {
 						if (!aLocalFile.exists()) {
 							downloadArtifact(aNameWithoutRepositoryPrefix, aLocalFile);
 						}
-						getLog().info("Refill content:" + aNameWithoutRepositoryPrefix + " with " + aLocalFile.length() + " bytes.");
+						long tempLengthOfLocalFile = aLocalFile.length();
+						if (reCompressJarFiles && (aLocalFile.getName().endsWith(".jar") || aLocalFile.getName().endsWith(".zip"))) {
+							File tempReCompressedJarFile = tempZipCompressHelper.reCompressJarFile(aLocalFile);
+							if (tempReCompressedJarFile != null) {
+								if (tempReCompressedJarFile.length() >= aLocalFile.length()) {
+									getLog().info("Recompression " + aNameWithoutRepositoryPrefix + " did not create smaller file: reCompressionLargerSize="
+											+ tempReCompressedJarFile.length() + ". Take original file.");
+									tempReCompressedJarFile.delete();
+								} else {
+									getLog().info("OriginalFileLength:" + aNameWithoutRepositoryPrefix + " with " + tempLengthOfLocalFile + " bytes.");
+									long tempLengthOfReCompressed = tempReCompressedJarFile.length();
+									getLog().info("ReCompressedJarFileLength:" + tempReCompressedJarFile.getName() + " with " + tempLengthOfReCompressed
+											+ " bytes saving " + (tempLengthOfLocalFile - tempLengthOfReCompressed) + " bytes.");
+									return new FileInputStream(tempReCompressedJarFile);
+								}
+							}
+						}
+						getLog().info("Refill content:" + aNameWithoutRepositoryPrefix + " with " + tempLengthOfLocalFile + " bytes.");
 						return new FileInputStream(aLocalFile);
 					} else {
 						if (getLog().isDebugEnabled()) {
