@@ -29,6 +29,11 @@
 		<!-- ci snapshots to nexus and releases to maven-central -->
 		<nexus.snapshots.url>https://nexus.canda.com/repository/Snapshots</nexus.snapshots.url>
 		<additionalMavenProfileRelease>oss-publish</additionalMavenProfileRelease>
+		
+		<!-- https://search.maven.org/search?q=a:maven-core -->
+		<!-- https://github.com/apache/maven/releases -->
+		<version.maven-core>3.8.9</version.maven-core>
+
 	</properties>
 
 	<scm>
@@ -62,7 +67,7 @@
 		<dependency>
 			<groupId>org.apache.maven</groupId>
 			<artifactId>maven-core</artifactId>
-			<version>3.8.4</version>
+			<version>${version.maven-core}</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
