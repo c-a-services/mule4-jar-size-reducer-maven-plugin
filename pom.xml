@@ -34,6 +34,9 @@
 		<!-- https://github.com/apache/maven/releases -->
 		<version.maven-core>3.8.9</version.maven-core>
 
+		<!-- https://github.com/apache/maven-plugin-tools/releases -->
+		<version.maven-plugin-plugin>3.15.1</version.maven-plugin-plugin>
+
 	</properties>
 
 	<scm>
@@ -79,6 +82,11 @@
 	</dependencies>
 	<build>
 		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-plugin-plugin</artifactId>
+				<version>${version.maven-plugin-plugin}</version>
+			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
