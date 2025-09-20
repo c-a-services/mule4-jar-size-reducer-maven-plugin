@@ -82,7 +82,9 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
-				<version>3.1.0</version>
+				<!-- https://github.com/apache/maven-source-plugin/releases -->
+				<!-- https://issues.apache.org/jira/projects/MSOURCES?selectedItem=com.atlassian.jira.jira-projects-plugin:release-page&status=released -->
+				<version>3.3.1</version>
 				<executions>
 					<execution>
 						<id>attach-sources</id>
