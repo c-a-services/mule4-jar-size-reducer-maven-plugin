@@ -1,6 +1,21 @@
 # mule4-jar-size-reducer-maven-plugin
 maven plugin which reduces the mule-application.jar files created by
-[mule4 applications](https://www.mulesoft.com/platform/mule)
+[mule4 applications](https://www.mulesoft.com/platform/mule).
+
+## Background:
+Mule4 application jars contain a repository folder of all direct and indirect used jar files. Due to classloader isolation even multiple versions of the  same groupId/artifactId are added.
+When plan to deploying to Cloudhub1 or OnPremise the Jar and you store the jar in a repository manager (nexus or jfrog) that files use much space which may cost on your repository manager.
+Before uploading the "compress-jar" replaces all already available in public repositories from the jar file and a significant smaller jar is stored.
+
+Before deploying to cloudhub1 / onpremis the jar file needs to be filled up again (`refill-jar`) to the original size so the mule runtime can find all dependendies.
+When you try to deploy the stipped off file you end up in 
+```
+org.mule.runtime.module.deployment.internal.DefaultArchiveDeployer: java.util.zip.ZipException: zip END header not found
+```
+
+## Cloudhub2
+For Cloudhub2 the `compress-jar` must *not* be used at all because the application-jar is directly used from Exchange. In Exchange the full size jar needs to be available.
+
 
 ## Usage:
 
